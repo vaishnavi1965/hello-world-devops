@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: hello-world
-          image: YOUR_DOCKERHUB_USERNAME/hello-world:latest
+          image: vaishnavi3008/hello-world:latest
 
           ports:
             - containerPort: 80
