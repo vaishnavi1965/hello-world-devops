@@ -12,7 +12,7 @@ pipeline {
         stage('Git Pull') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/YOUR_USERNAME/hello-world-devops.git'
+                    url: 'https://github.com/vaishnavi1965/hello-world-devops.git'
             }
         }
 
