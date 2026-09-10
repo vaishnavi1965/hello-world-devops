@@ -4,7 +4,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = "vaishnavi3008/hello-world"
-        IMAGE_TAG = "${BUILD_NUMBER}"
+        IMAGE_TAG  = "${BUILD_NUMBER}"
     }
 
     stages {
@@ -18,13 +18,19 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('sonarqube') {
-                    sh '''
-                        sonar-scanner \
-                        -Dsonar.projectKey=hello-world-devops \
-                        -Dsonar.projectName=hello-world-devops \
-                        -Dsonar.sources=app
-                    '''
+                script {
+                    def scannerHome = tool 'sonar-scanner'
+
+                    withSonarQubeEnv('sonarqube') {
+                        withEnv(["PATH+SONAR=${scannerHome}/bin"]) {
+                            sh '''
+                                sonar-scanner \
+                                -Dsonar.projectKey=hello-world-devops \
+                                -Dsonar.projectName=hello-world-devops \
+                                -Dsonar.sources=app
+                            '''
+                        }
+                    }
                 }
             }
         }
@@ -47,7 +53,10 @@ pipeline {
                     )
                 ]) {
                     sh '''
-                        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+                        echo "$DOCKER_PASSWORD" | docker login \
+                            -u "$DOCKER_USERNAME" \
+                            --password-stdin
+
                         docker push $IMAGE_NAME:$IMAGE_TAG
                     '''
                 }
@@ -58,8 +67,11 @@ pipeline {
             steps {
                 sh '''
                     sed -i "s|image: .*|image: $IMAGE_NAME:$IMAGE_TAG|" k8s/deployment.yaml
+
                     kubectl apply -f k8s/deployment.yaml
                     kubectl apply -f k8s/service.yaml
+
+                    kubectl rollout status deployment/hello-world
                 '''
             }
         }
