@@ -4,7 +4,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = "vaishnavi3008/hello-world"
-        IMAGE_TAG = "${	BUILD_NUMBER}"
+        IMAGE_TAG = "${BUILD_NUMBER}"
     }
 
     stages {
@@ -13,6 +13,19 @@ pipeline {
             steps {
                 git branch: 'main',
                     url: 'https://github.com/vaishnavi1965/hello-world-devops.git'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonarqube') {
+                    sh '''
+                        sonar-scanner \
+                        -Dsonar.projectKey=hello-world-devops \
+                        -Dsonar.projectName=hello-world-devops \
+                        -Dsonar.sources=app
+                    '''
+                }
             }
         }
 
@@ -44,7 +57,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 sh '''
-		    sed -i "s|image: .*|image: $IMAGE_NAME:$IMAGE_TAG|" k8s/deployment.yaml
+                    sed -i "s|image: .*|image: $IMAGE_NAME:$IMAGE_TAG|" k8s/deployment.yaml
                     kubectl apply -f k8s/deployment.yaml
                     kubectl apply -f k8s/service.yaml
                 '''
