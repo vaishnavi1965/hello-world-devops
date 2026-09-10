@@ -22,13 +22,21 @@ pipeline {
                     def scannerHome = tool 'sonar-scanner'
 
                     withSonarQubeEnv('sonarqube') {
-                        withEnv(["PATH+SONAR=${scannerHome}/bin"]) {
-                            sh '''
-                                sonar-scanner \
-                                -Dsonar.projectKey=hello-world-devops \
-                                -Dsonar.projectName=hello-world-devops \
-                                -Dsonar.sources=app
-                            '''
+                        withCredentials([
+                            string(
+                                credentialsId: 'sonarqube-token',
+                                variable: 'SONAR_TOKEN'
+                            )
+                        ]) {
+                            withEnv(["PATH+SONAR=${scannerHome}/bin"]) {
+                                sh '''
+                                    sonar-scanner \
+                                    -Dsonar.projectKey=hello-world-devops \
+                                    -Dsonar.projectName=hello-world-devops \
+                                    -Dsonar.sources=app \
+                                    -Dsonar.token=$SONAR_TOKEN
+                                '''
+                            }
                         }
                     }
                 }
