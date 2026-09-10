@@ -4,7 +4,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = "vaishnavi3008/hello-world"
-        IMAGE_TAG = "latest"
+        IMAGE_TAG = "${	BUILD_NUMBER}"
     }
 
     stages {
@@ -44,6 +44,7 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 sh '''
+		    sed -i "s|image: .*|image: $IMAGE_NAME:$IMAGE_TAG|" k8s/deployment.yaml
                     kubectl apply -f k8s/deployment.yaml
                     kubectl apply -f k8s/service.yaml
                 '''
