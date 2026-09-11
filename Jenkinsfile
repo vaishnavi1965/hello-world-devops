@@ -50,7 +50,13 @@ pipeline {
                 '''
             }
         }
-
+        stage('Trivy Security Scan') {
+            steps {
+                sh '''
+                    trivy image --severity HIGH,CRITICAL $IMAGE_NAME:$IMAGE_TAG
+                '''
+            }
+        }
         stage('Push Image to Registry') {
             steps {
                 withCredentials([
