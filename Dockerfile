@@ -1,4 +1,4 @@
-FROM nginx:1.18.0
+FROM nginx:alpine
 
 COPY app/index.html /usr/share/nginx/html/index.html
 
